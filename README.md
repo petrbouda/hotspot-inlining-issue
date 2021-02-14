@@ -1,18 +1,6 @@
 # Hotspot Inlining Latencies
 
-- Docker Image with Debug symbols - https://github.com/petrbouda/openjdk-x-dbg-asyncprofiler
-- We can adjust JVM flags in the POM file
-
-```
-docker run -it --rm --name app --cpus="1" --memory="1g" --memory-swap="1g" --network host \
--v /var/run/docker.sock:/var/run/docker.sock \
--v /tmp/asyncprofiler:/tmp/asyncprofiler \
-inlining:latest
-
-docker exec -ti app profiler.sh 30 -i 1ms -e cpu -f /tmp/asyncprofiler/cpu.html 1
-```
-
-#### Description of the Problem
+#### Problem
 
 My client has a legacy database and wanted to migrate data using CDC (similar to Debezium). Database contains a bigger number of fields 
 (cca. 50). Data is send to RabbitMQ and consumed by Java-based app. It's mapped to Java class using types from Standard JDK library:
