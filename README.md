@@ -1,4 +1,4 @@
-# Hotspot Inlining Latencies
+# Hotspot Inlining Issue (compilation time)
 
 #### Problem
 
@@ -6,13 +6,13 @@ My client has a legacy database and wanted to migrate data using CDC (similar to
 (cca. 50). Data is send to RabbitMQ and consumed by Java-based app. It's mapped to Java class using types from Standard JDK library:
 Integers, Longs, Strings, LocalDates, Instants, BigDecimals, ...
 
-After calling `toString` on this class (and of course, calling `toString` to all fields ), the application was experiencing 
-a significant growth of vCPU consumption in Kubernetes (a normal load is not such big, something around 5-10% of 1 vCPU) 
-and RSS memory growth about 1GB. The application itself does not cache anything, 200MB of Heap and 200MB for native memory 
-is absolutely fine.
+After calling `toString` on this class (and of course, calling `toString` to all its fields), the application was experiencing 
+a significant growth of vCPU consumption (a normal load is not such big, something around 5-10% of 1 vCPU) 
+and RSS memory growth about 1GB (it runs on Kubernetes). The application itself does not cache anything, 
+200MB of Heap and 200MB for native memory should be enough.
 
 It turns out that the problem is in C2 compilation of `toString` method belonging to this entity. 
-When the compilation kicks in, it takes 30min of almost full vCPU usage.
+When the compilation kicks in, it takes 30min of vCPU burst.
 
 - CPU and Memory consumption during the compilation
 
@@ -20,12 +20,13 @@ When the compilation kicks in, it takes 30min of almost full vCPU usage.
 
 ### Reproducer
 
-I tried to simulate the same situation with a simple reproducer. A smaller number of threads means a lower impact caused by compilation, but
+I tried to simulate the same situation with a simple reproducer. A smaller number of fields means a lower impact caused by compilation, but
 big enough to demonstrate the problem. I noticed that every additional field increases the compilation time exponentially.
 
 #### 20 boxed Integers with one String
 
-- Docker Image with Debug symbols - https://github.com/petrbouda/openjdk-x-dbg-asyncprofiler
+- A based image with Debug symbols and AsyncProfiler: 
+  https://github.com/petrbouda/openjdk-x-dbg-asyncprofiler
 - We can adjust JVM flags in the POM file
 
 - Build an image using JIB Plugin in POM file
@@ -54,11 +55,13 @@ docker exec -ti app profiler.sh 30 -i 1ms -e cpu -f /tmp/profiler/cpu.html 1
 
 ![JFR Compilation with a String](jfr-with-string.png)
 
-[flamegraph-with-string.html](flamegraph-with-string.html)
+[flamegraph-with-string.html](flamegraph-with-string.html) (save and open the interactive graph locally)
 
 ![Flamegraph with a String](flamegraph-with-string.png)
 
 #### 20 boxed Integers WITHOUT any String (only one type of the object)
+
+- Remove assigning of String value in `pbouda.inline.Application` and run `mvn package` to update the image
 
 - no `toString` inlining at all, just `StringConcatHelper` used by MethodHandles and InvokeDynamic to concatenate strings.
 
