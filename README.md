@@ -59,7 +59,7 @@ docker exec -ti app profiler.sh 30 -i 1ms -e cpu -f /tmp/profiler/cpu.html 1
 
 ![Flamegraph with a String](flamegraph-with-string.png)
 
-#### 20 boxed Integers WITHOUT any String (only one type of the object)
+#### 20 boxed Integers WITHOUT any String (only one type of fields inside the class)
 
 - Remove assigning of String value in `pbouda.inline.Application` and run `mvn package` to update the image
 
