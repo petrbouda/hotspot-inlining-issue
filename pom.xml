@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>pbouda</groupId>
+    <artifactId>hotspot-inlining-issue</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>15</maven.compiler.source>
+        <maven.compiler.target>15</maven.compiler.target>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>15</source>
+                    <target>15</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>2.7.0</version>
+                <configuration>
+                    <from>
+                        <image>docker://openjdk-15-dbg-asyncprofiler:latest</image>
+                    </from>
+                    <to>
+                        <image>inlining:latest</image>
+                    </to>
+                    <container>
+                        <mainClass>pbouda.inline.Application</mainClass>
+                        <jvmFlags>
+                            <jvmFlag>-XX:+UseSerialGC</jvmFlag>
+                            <jvmFlag>-Xmx500m</jvmFlag>
+                            <jvmFlag>-XX:StartFlightRecording=settings=profile,disk=true,maxsize=4g,path-to-gc-roots=true,dumponexit=true,filename=/tmp/profiler/app.jfr</jvmFlag>
+<!--                            <jvmFlag>-XX:TieredStopAtLevel=1</jvmFlag>-->
+<!--                            <jvmFlag>-XX:CompileCommand=exclude,pbouda.inline.Application$Entity::toString</jvmFlag>-->
+<!--                            <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>-->
+<!--                            <jvmFlag>-XX:+EnableJVMCI</jvmFlag>-->
+<!--                            <jvmFlag>-XX:+UseJVMCICompiler</jvmFlag>-->
+<!--                            <jvmFlag>-XX:+UnlockDiagnosticVMOptions</jvmFlag>-->
+<!--                            <jvmFlag>-XX:+DebugNonSafepoints</jvmFlag>-->
+<!--                            <jvmFlag>-Dcom.sun.management.jmxremote.port=7091</jvmFlag>-->
+<!--                            <jvmFlag>-Dcom.sun.management.jmxremote.authenticate=false</jvmFlag>-->
+<!--                            <jvmFlag>-Dcom.sun.management.jmxremote.ssl=false</jvmFlag>-->
+                        </jvmFlags>
+                    </container>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>dockerBuild</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
