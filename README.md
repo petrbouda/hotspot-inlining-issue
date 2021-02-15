@@ -67,7 +67,7 @@ docker exec -ti app profiler.sh 30 -i 1ms -e cpu -f /tmp/profiler/cpu.html 1
 
 ![JFR Compilation without a String](jfr-without-string.png)
 
-- it can be caused by a threshold in JFR Compilation events, only 
+- it can be caused by a threshold in JFR Compilation events, only 100ms long compilations are recorded
 
 ```
 <event name="jdk.Compilation">
