@@ -67,6 +67,15 @@ docker exec -ti app profiler.sh 30 -i 1ms -e cpu -f /tmp/profiler/cpu.html 1
 
 ![JFR Compilation without a String](jfr-without-string.png)
 
+- it can be caused by a threshold in JFR Compilation events, only 
+
+```
+<event name="jdk.Compilation">
+  <setting name="enabled" control="compiler-enabled">true</setting>
+  <setting name="threshold" control="compiler-compilation-threshold">100 ms</setting>
+</event>
+```
+
 - no `PhaseIdealLoop` and checking a dominator Node
 
 [flamegraph-without-string.html](flamegraph-without-string.html)
